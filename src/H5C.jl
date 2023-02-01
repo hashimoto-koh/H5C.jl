@@ -1,6 +1,6 @@
 module H5C
 
-export openh5c, openh5, openjld, readh5c, readh5, readjld
+export lsh5c, lsh5, lsjld, openh5c, openh5, openjld, readh5c, readh5, readjld
 
 import HDF5
 import JLD
