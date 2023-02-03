@@ -1,6 +1,7 @@
 module H5C
 
 export lsh5c, lsh5, lsjld, openh5c, openh5, openjld, readh5c, readh5, readjld
+export create_mmap_array
 
 import HDF5
 import JLD
@@ -351,6 +352,93 @@ begin
     p == :attr && (error("you can't set property: attr"))
     setproperty!(o.attr, p, x)
 end
+
+####################
+# create_mmap_array
+####################
+
+_create_mmap_array(parent::HDF5.Dataset,
+                   path::AbstractString,
+                   T::DataType,
+                   shape;
+                   init=nothing) =
+begin
+    dat = HDF5.create_dataset(parent, path, datatype(T), dataspace(shape))
+    obj = H5CObj(dat)
+    obj.time = _nowstr()
+    dat[repeat([1],length(shape))...] = T(0)
+    m = readmmap(dat)
+
+    if !isnothing(init)
+        if isa(init, Function)
+            init(m)
+        else
+            m .= init
+        end
+    end
+
+    m
+end
+
+"""
+    create_mmap_array(parent::Union{AbstractString,File,Group},
+                      path::Union{AbstractString,Symbol},
+                      T::DataType,
+                      shape::Union{Tuple, Integer};
+                      init=nothing)
+
+"""
+create_mmap_array(filename::AbstractString,
+                  path::Union{AbstractString,Symbol},
+                  T::DataType,
+                  shape;
+                  mode=:a,
+                  init=nothing) =
+    create_mmap_array(openh5c(filename, mode), path, T, shape; init)
+
+create_mmap_array(parent::H5CJParent,
+                  path::Union{AbstractString,Symbol},
+                  T::DataType,
+                  shape;
+                  init=nothing) =
+begin
+    pathstr = string(path)
+    haskey(parent, pathstr) && delete!(parent, pathstr)
+
+    _create_mmap_array(parent.plain, pathstr, T, shape; init)
+end
+
+create_mmap_array(parent::H5CHParent,
+                  path::Union{AbstractString,Symbol},
+                  T::DataType,
+                  shape;
+                  init=nothing) =
+begin
+    pathstr = string(path)
+    haskey(parent, pathstr) && delete!(parent, pathstr)
+
+    _create_mmap_array(parent, pathstr, T, shape; init)
+end
+
+create_mmap_array(parent::Union{AbstractString,AbstH5CParent},
+                  path::Union{AbstractString,Symbol},
+                  T::DataType,
+                  shape::Integer;
+                  init=nothing) = create_mmap_array(parent, path, T, (shape,); init)
+
+create_mmap_array(initfunc::Function,
+                  filename::AbstractString,
+                  path::Union{AbstractString,Symbol},
+                  T::DataType,
+                  shape; mode=:a) =
+    create_mmap_array(filename, path, T, shape; init=initfunc, mode)
+
+create_mmap_array(initfunc::Function,
+                  parent::AbstH5CParent,
+                  path::Union{AbstractString,Symbol},
+                  T::DataType,
+                  shape) =
+    create_mmap_array(parent, path, T, shape; init=initfunc)
 
 ####################
 # Base.show
