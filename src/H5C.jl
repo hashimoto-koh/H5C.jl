@@ -137,9 +137,9 @@ lsjld(filename::AbstractString; forcename=false) = readjld(h -> (display(h); clo
 readh5c(filename::AbstractString) = openh5c( filename, "r")
 readh5( filename::AbstractString; forcename=false) = openh5( filename, "r"; forcename)
 readjld(filename::AbstractString; forcename=false) = openjld(filename, "r"; forcename)
-readh5c(func::Function, filename::AbstractString) = func(read5c( filename, "r"))
-readh5( func::Function, filename::AbstractString; forcename=false) = func(readh5( filename, "r"; forcename))
-readjld(func::Function, filename::AbstractString; forcename=false) = func(readjld(filename, "r"; forcename))
+readh5c(func::Function, filename::AbstractString) = func(read5c( filename))
+readh5( func::Function, filename::AbstractString; forcename=false) = func(readh5( filename; forcename))
+readjld(func::Function, filename::AbstractString; forcename=false) = func(readjld(filename; forcename))
 
 openh5c(filename::AbstractString, mode=:a) =
 begin
