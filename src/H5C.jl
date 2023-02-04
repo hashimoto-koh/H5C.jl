@@ -130,9 +130,9 @@ Base.:*(o::H5CObj, p::Symbol) = getproperty(o.attr, p)
 # ls, open, read
 ####################
 
-lsh5c(filename::AbstractString) = display(readh5c(filename))
-lsh5( filename::AbstractString; forcename=false) = display(readh5( filename; forcename))
-lsjld(filename::AbstractString; forcename=false) = display(readjld(filename; forcename))
+lsh5c(filename::AbstractString) = readh5c(h -> (display(h); close(h)), filename)
+lsh5( filename::AbstractString; forcename=false) = readh5( h -> (display(h); close(h)), filename; forcename)
+lsjld(filename::AbstractString; forcename=false) = readjld(h -> (display(h); close(h)), filename; forcename)
 
 readh5c(filename::AbstractString) = openh5c( filename, "r")
 readh5( filename::AbstractString; forcename=false) = openh5( filename, "r"; forcename)
