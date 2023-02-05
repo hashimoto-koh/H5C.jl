@@ -71,7 +71,7 @@ const H5CHParent = Union{H5CHFile, H5CHGroup}
 const H5CJParent = Union{H5CJFile, H5CJGroup}
 const H5CHObj    = Union{H5CHFile, H5CHGroup, H5CHDataset}
 const H5CJObj    = Union{H5CJFile, H5CJGroup, H5CJDataset}
-const H5CObj     = Union{H5CHObj,  H5CJObj}
+# const H5CObj     = Union{H5CHObj,  H5CJObj}
 
 ####################
 # keys
@@ -137,9 +137,30 @@ lsjld(filename::AbstractString; forcename=false) = readjld(h -> (display(h); clo
 readh5c(filename::AbstractString) = openh5c( filename, "r")
 readh5( filename::AbstractString; forcename=false) = openh5( filename, "r"; forcename)
 readjld(filename::AbstractString; forcename=false) = openjld(filename, "r"; forcename)
-readh5c(func::Function, filename::AbstractString) = func(read5c( filename))
-readh5( func::Function, filename::AbstractString; forcename=false) = func(readh5( filename; forcename))
-readjld(func::Function, filename::AbstractString; forcename=false) = func(readjld(filename; forcename))
+
+readh5c(func::Function, filename::AbstractString) =
+begin
+    f = read5c( filename)
+    x = func(f)
+    close(f)
+    x
+end
+
+readh5( func::Function, filename::AbstractString; forcename=false) =
+begin
+    f = readh5( filename; forcename)
+    x = func(f)
+    close(f)
+    x
+end
+
+readjld(func::Function, filename::AbstractString; forcename=false) =
+begin
+    f = readjld(filename; forcename)
+    x = func(f)
+    close(f)
+    x
+end
 
 openh5c(filename::AbstractString, mode=:a) =
 begin
@@ -150,7 +171,12 @@ begin
 end
 
 openh5c(func::Function, filename::AbstractString, mode=:a) =
-    func(openh5c(filename, mode))
+begin
+    f = openh5c(filename, mode)
+    x = func(f)
+    close(f)
+    x
+end
 
 openh5(filename::AbstractString, mode_=:a; forcename=false) =
 begin
@@ -173,7 +199,12 @@ begin
 end
 
 openh5(func::Function, filename::AbstractString, mode_=:a; forcename=false) =
-    func(openh5(filename, mode_; forcename))
+begin
+    f = openh5(filename, mode_; forcename)
+    x = func(f)
+    close(f)
+    x
+end
 
 openjld(filename::AbstractString, mode_=:a; mmap=true, forcename=false) =
 begin
@@ -196,7 +227,12 @@ begin
 end
 
 openjld(func::Function, filename::AbstractString, mode_=:a; mmap=true, forcename=false) =
-    func(openjld(filename, mode_; mmap, forcename))
+begin
+    f = openjld(filename, mode_; mmap, forcename)
+    x = func(f)
+    close(f)
+    x
+end
 
 ####################
 # close
