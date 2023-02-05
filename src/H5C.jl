@@ -327,6 +327,17 @@ begin
     o(p).time = _nowstr()
 end
 
+Base.setproperty!(o::AbstH5CParent, p::Symbol, x::NamedTuple) =
+begin
+    hasfield(typeof(o), p) && (return setfield!(o, p, x))
+
+    Base.setproperty!(o, p, (;))
+    g = Base.getproperty(o, p)
+    for (k,v) in pairs(x)
+        Base.setproperty!(g, k, v)
+    end
+end
+
 Base.setproperty!(o::H5CHParent, p::Symbol, x) =
 begin
     hasfield(typeof(o), p) && (return setfield!(o, p, x))
