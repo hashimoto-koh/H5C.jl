@@ -79,7 +79,7 @@ const H5CJObj    = Union{H5CJFile, H5CJGroup, H5CJDataset}
 
 Base.keys(o::AbstH5CParent) = Symbol.(Base.keys(o[]))
 Base.propertynames(o::AbstH5CParent) = Tuple(Base.keys(o))
-Base.hasproperty(o::AbstH5CParent, p::Symbol) = p in Base.propertynames(hds)
+Base.hasproperty(o::AbstH5CParent, p::Symbol) = p in Base.propertynames(o)
 
 ####################
 # H5CObj
